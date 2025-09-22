@@ -9,12 +9,16 @@ import SwiftUI
 
 @main
 struct EDotReminderAppApp: App {
-    let persistenceController = PersistenceController.shared
-
+    init() {
+        // Register services
+        ServiceLocator.shared.register(HabitRepository.self, service: CoreDataHabitRepository())
+        ServiceLocator.shared.register(NotificationService.self, service: UNNotificationService())
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            HabitListView()
+                .environment(\.managedObjectContext, PersistenceController.shared.viewContext)
         }
     }
 }
