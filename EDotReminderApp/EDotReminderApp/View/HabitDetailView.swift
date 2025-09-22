@@ -19,7 +19,7 @@ struct HabitDetailView: View {
         Form {
             Section(header: Text("Habit Info")) {
                 TextField("Habit name", text: $vm.name)
-                DatePicker("Time", selection: $vm.time, displayedComponents: .)
+                DatePicker("Time", selection: $vm.time, displayedComponents: [.date, .hourAndMinute])
                 Toggle("Enabled", isOn: $vm.enabled)
             }
             

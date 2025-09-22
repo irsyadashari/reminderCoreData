@@ -18,7 +18,11 @@ struct AddHabitView: View {
         NavigationView {
             Form {
                 TextField("Habit name", text: $name)
-                DatePicker("Date & Time", selection: $time, displayedComponents: .date)
+                DatePicker(
+                    "Date & Time",
+                    selection: $time,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
                 Toggle("Enabled", isOn: $enabled)
             }
             .navigationTitle("Add Habit")
@@ -39,5 +43,6 @@ struct AddHabitView: View {
         }
     }
 }
+
 
 
