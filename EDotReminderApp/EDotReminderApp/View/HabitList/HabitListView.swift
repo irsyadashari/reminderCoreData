@@ -11,16 +11,14 @@ struct HabitListView: View {
     @StateObject private var vm = HabitListViewModel()
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 ForEach(vm.habits, id: \.id) { habit in
-                    NavigationLink(destination: HabitDetailView(habit: habit)) {
-                        HabitRowView(
-                            habit: habit,
-                            onToggle: { Task { await vm.toggleEnabled(habit) } },
-                            onDelete: { Task { await vm.delete(habit) } }
-                        )
-                    }
+                    HabitRowView(
+                        habit: habit,
+                        onToggle: { Task { await vm.toggleEnabled(habit) } },
+                        onDelete: { Task { await vm.delete(habit) } }
+                    )
                 }
             }
             .navigationTitle("Daily Habits")

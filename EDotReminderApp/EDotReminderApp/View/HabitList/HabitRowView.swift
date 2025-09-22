@@ -14,12 +14,17 @@ struct HabitRowView: View {
     
     var body: some View {
         HStack {
-            VStack(alignment: .leading) {
-                Text(habit.name ?? "")
-                    .font(.headline)
-                Text(Formatters.fullDateTime.string(from: habit.time ?? Date()))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+            // Only this part is tappable for navigation
+            NavigationLink(destination: HabitDetailView(habit: habit)) {
+                VStack(alignment: .leading) {
+                    Text(habit.name ?? "")
+                        .font(.headline)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    Text(Formatters.fullDateTime.string(from: habit.time ?? Date()))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
             }
             Spacer()
             Toggle("", isOn: Binding(
@@ -35,3 +40,4 @@ struct HabitRowView: View {
         }
     }
 }
+
