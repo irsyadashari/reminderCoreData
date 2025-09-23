@@ -36,15 +36,26 @@ final class HabitDetailViewModel: ObservableObject {
         habit.enabled = enabled
         try PersistenceController.shared.viewContext.save()
         
+        guard let habitId = habit.id else {
+            print("Warning: Habit ID is nil. Cannot schedule or cancel notification.")
+            return
+        }
+        
         if enabled {
-            try await notif.scheduleDailyReminder(id: habit.id!.uuidString, title: name, date: time)
+            try await notif.scheduleDailyReminder(id: habitId.uuidString, title: name, date: time)
         } else {
-            await notif.cancelReminder(id: habit.id!.uuidString)
+            await notif.cancelReminder(id: habitId.uuidString)
         }
     }
     
     func delete() async throws {
-        await notif.cancelReminder(id: habit.id!.uuidString)
+        guard let habitId = habit.id else {
+            print("Warning: Habit ID is nil. Cannot cancel notification.")
+            return
+        }
+        
+        await notif.cancelReminder(id: habitId.uuidString)
         try await repo.deleteHabit(habit)
     }
 }
+

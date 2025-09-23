@@ -16,8 +16,10 @@ final class HabitListViewModel: ObservableObject {
     private let repo: HabitRepository
     private let notif: NotificationService
     
-    init(repo: HabitRepository = ServiceLocator.shared.resolve(HabitRepository.self),
-         notif: NotificationService = ServiceLocator.shared.resolve(NotificationService.self)) {
+    init(
+        repo: HabitRepository = ServiceLocator.shared.resolve(HabitRepository.self),
+        notif: NotificationService = ServiceLocator.shared.resolve(NotificationService.self)
+    ) {
         self.repo = repo
         self.notif = notif
     }
@@ -33,10 +35,12 @@ final class HabitListViewModel: ObservableObject {
     func addHabit(name: String, time: Date, enabled: Bool) async {
         do {
             let habit = try await repo.addHabit(name: name, time: time, enabled: enabled)
-            // schedule notification
-            if enabled {
-                try await notif.scheduleDailyReminder(id: habit.id!.uuidString, title: name, date: time)
+            
+            // schedule notification safely
+            if enabled, let id = habit.id {
+                try await notif.scheduleDailyReminder(id: id.uuidString, title: name, date: time)
             }
+            
             await load()
         } catch {
             print("Error adding habit:", error)
@@ -47,11 +51,13 @@ final class HabitListViewModel: ObservableObject {
         do {
             habit.enabled.toggle()
             try PersistenceController.shared.viewContext.save()
-            if habit.enabled {
-                try await notif.scheduleDailyReminder(id: habit.id!.uuidString, title: habit.name!, date: habit.time!)
-            } else {
-                await notif.cancelReminder(id: habit.id!.uuidString)
+            
+            if habit.enabled, let id = habit.id, let name = habit.name, let time = habit.time {
+                try await notif.scheduleDailyReminder(id: id.uuidString, title: name, date: time)
+            } else if let id = habit.id {
+                await notif.cancelReminder(id: id.uuidString)
             }
+            
             await load()
         } catch {
             print(error)
@@ -60,7 +66,9 @@ final class HabitListViewModel: ObservableObject {
     
     func delete(_ habit: HabitEntity) async {
         do {
-            await notif.cancelReminder(id: habit.id!.uuidString)
+            if let id = habit.id {
+                await notif.cancelReminder(id: id.uuidString)
+            }
             try await repo.deleteHabit(habit)
             await load()
         } catch {
