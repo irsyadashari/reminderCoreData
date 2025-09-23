@@ -21,4 +21,3 @@ enum Formatters {
         return df
     }()
 }
-

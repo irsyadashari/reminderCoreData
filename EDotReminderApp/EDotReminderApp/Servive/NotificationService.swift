@@ -15,8 +15,13 @@ protocol NotificationService {
     func cancelReminder(id: String) async
 }
 
-final class UNNotificationService: NotificationService {
+final class UNNotificationService: NSObject, NotificationService {
     private let center = UNUserNotificationCenter.current()
+    
+    override init() {
+        super.init()
+        center.delegate = self
+    }
     
     func requestAuthorization() async throws -> Bool {
         try await center.requestAuthorization(options: [.alert, .sound, .badge])
@@ -24,7 +29,7 @@ final class UNNotificationService: NotificationService {
     
     func scheduleDailyReminder(id: String, title: String, date: Date) async throws {
         let fireDate = Calendar.current.date(byAdding: .minute, value: -10, to: date) ?? date
-        let comps = Calendar.current.dateComponents([.hour, .minute], from: fireDate)
+        let comps = Calendar.current.dateComponents([.day ,.hour, .minute, .second], from: fireDate)
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
         
@@ -50,4 +55,13 @@ final class UNNotificationService: NotificationService {
         center.removePendingNotificationRequests(withIdentifiers: [id])
     }
 }
+
+extension UNNotificationService: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
+}
+
 

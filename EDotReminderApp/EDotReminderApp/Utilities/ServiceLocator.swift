@@ -22,4 +22,3 @@ final class ServiceLocator {
         return s
     }
 }
-
